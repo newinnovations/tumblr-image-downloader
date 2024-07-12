@@ -26,12 +26,12 @@ or using a file specified as an argument.
 }
 ```
 
-| key     | meaning                                                           |
-| ------- | ----------------------------------------------------------------- |
-| dir     | Directory to store the images. This directory must already exist. |
-| max_age | Only scan for posts younger than max_age. Use 0 to download all.  |
-| auth    | Application keys for tumblr. See below.                           |
-| blogs   | Names of the blogs to download.                                   |
+| key     | meaning                                                                    |
+| ------- | -------------------------------------------------------------------------- |
+| dir     | Directory to store the images. This directory must already exist.          |
+| max_age | Only scan for posts younger than max_age (in days). Use 0 to download all. |
+| auth    | Application keys for tumblr. See below.                                    |
+| blogs   | Names of the blogs to download.                                            |
 
 ## Application keys
 
