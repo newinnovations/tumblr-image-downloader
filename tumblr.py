@@ -4,6 +4,7 @@
 #
 # Copyright (c) 2024 Martin van der Werff <github (at) newinnovations.nl>
 
+import glob
 import json
 import os
 import shutil
@@ -14,7 +15,7 @@ import pytumblr
 import requests
 
 
-def image(blog, media, timestamp):
+def image(blog, media, timestamp, image_ids):
     image_dir = CONFIG["dir"]
     url = media["url"]
     s = url.split("/")
@@ -22,7 +23,7 @@ def image(blog, media, timestamp):
         ext = s[6].rsplit(".", 1)[-1]
         filename = f"{blog}/{s[3]}.{ext}"
         path = f"{image_dir}/{filename}"
-        if os.path.isfile(path):
+        if s[3] in image_ids:
             print(f"  -- {filename}: exists")
         else:
             try:
@@ -30,6 +31,8 @@ def image(blog, media, timestamp):
                 with open(path, "wb") as out_file:
                     shutil.copyfileobj(response.raw, out_file)
                 print(f"  -- {filename}: ok")
+                os.utime(path, (timestamp, timestamp))
+                image_ids.append(s[3])
             except KeyboardInterrupt:
                 print()
                 print(f"Shutdown requested...exiting (first removing {path})")
@@ -41,8 +44,6 @@ def image(blog, media, timestamp):
                 sys.exit(1)
             except Exception:
                 print(f"  -- {filename}: error")
-
-        os.utime(path, (timestamp, timestamp))
     else:
         print(f"Unexpected URL: len={len(s)}, url={url}")
 
@@ -71,6 +72,11 @@ def main():
 
         if not os.path.isdir(f"{image_dir}/{blogname}"):
             os.mkdir(f"{image_dir}/{blogname}")
+
+        image_ids = [
+            i.split(".", 1)[0]
+            for i in glob.iglob("*", root_dir=f"{image_dir}/{blogname}")
+        ]
 
         offset = 0
         while True:
@@ -110,7 +116,7 @@ def main():
 
                 for c in post["content"]:
                     if c["type"] == "image":
-                        image(blogname, c["media"][0], timestamp)
+                        image(blogname, c["media"][0], timestamp, image_ids)
                     else:
                         print(f"  -- {c['type']}")
 
